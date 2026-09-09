@@ -374,4 +374,148 @@ function tampilkanHalaman(e){document.querySelectorAll('.page').forEach(t=>t.cla
 function gantiHarga(e){const t=e.closest('.kartu-info');t.querySelector('.harga span').textContent=parseInt(e.value).toLocaleString('id-ID')}
 function ubahJumlah(e,t){const n=e.closest('.kartu-produk');if(n.classList.contains('kunci'))return;const o=n.querySelector('.jumlah-input'),s=parseInt(n.dataset.stok);let i=parseInt(o.value)+t;i=Math.max(1,Math.min(i,s)),o.value=i}
 function tambahKeKeranjang(nama,tombol,foto){const kartu=tombol.closest('.kartu-produk'),stok=parseInt(kartu.dataset.stok);if(kartu.classList.contains('kunci')||poSelesai)return void alert('❌ Sudah tidak bisa dipesan!');if(stok<=0)return void alert('❌ Stok habis!');const ukuranEl=kartu.querySelector('select'),ukuranTeks=ukuranEl.options[ukuranEl.selectedIndex].text,harga=parseInt(ukuranEl.value),jumlah=parseInt(kartu.querySelector('.jumlah-input').value);const ada=keranjang.find(i=>i.nama===nama&&i.ukuran===ukuranTeks);if(ada){if(ada.jumlah+jumlah>stok)return void alert('⚠️ Jumlah melebihi stok!');ada.jumlah+=jumlah}else keranjang.push({nama,ukuran:ukuranTeks,harga,jumlah,foto});perbaruiTampilanKeranjang(),alert(`✅ Berhasil ditambahkan:\n${nama}\n${ukuranTeks} x${jumlah}`)}
-function perbaruiTampilanKeranjang(){const e=document.getElementById('keranjang-list'),t=document.getElementById('jumlah-keranjang');let n=0;const o=keranjang.reduce((e,t)=>e+t.jumlah,0);t.textContent=o,e.innerHTML='';if(0===keranjang.length)e.innerHTML='<p style="color:#aaa;text-align:center;padding:30px;">🛒 Keranjang belanja kosong</p>';else{keranjang.forEach((brg,idx
+function perbaruiTampilanKeranjang(){const e=document.getElementById('keranjang-list'),t=document.getElementById('jumlah-keranjang');let n=0;const o=keranjang.reduce((e,t)=>e+t.jumlah,0);t.textContent=o,e.innerHTML='';if(0===keranjang.length)e.innerHTML='<p style="color:#aaa;text-align:center;padding:30px;">🛒 Keranjang belanja kosong</p>';else{keranjang.forEach((brg,idx);n+=brg.harga*brg.jumlah;e.innerHTML+=`
+            <div class="item-keranjang">
+                <img src="${brg.foto}" alt="${brg.nama}" class="foto-keranjang" loading="lazy">
+                <div class="info-item">
+                    <strong>${brg.nama}</strong>
+                    <p>Ukuran: ${brg.ukuran}</p>
+                    <p>Harga: Rp${brg.harga.toLocaleString('id-ID')}</p>
+                    <p>Jumlah: ${brg.jumlah}</p>
+                    <p>Subtotal: <strong>Rp${(brg.harga * brg.jumlah).toLocaleString('id-ID')}</strong></p>
+                    <button class="hapus-btn" onclick="hapusDariKeranjang(${idx})">🗑️ Hapus</button>
+                </div>
+            </div>`;
+        }
+    }
+    document.getElementById('subtotal').textContent = `Rp${n.toLocaleString('id-ID')}`;
+    const barisPotong = document.getElementById('baris-potongan');
+    const tampilPotong = document.getElementById('potongan');
+    const totalBayar = document.getElementById('total-bayar');
+
+    if (nilaiDiskon > 0 && kodeTerpakai) {
+        barisPotong.style.display = 'flex';
+        tampilPotong.textContent = `-Rp${nilaiDiskon.toLocaleString('id-ID')}`;
+    } else {
+        barisPotong.style.display = 'none';
+        nilaiDiskon = 0;
+    }
+
+    const total = Math.max(0, n - nilaiDiskon);
+    totalBayar.textContent = `Rp${total.toLocaleString('id-ID')}`;
+}
+
+function hapusDariKeranjang(indeks) {
+    keranjang.splice(indeks, 1);
+    perbaruiTampilanKeranjang();
+}
+
+// === CEK KODE DISKON ===
+function cekKodeDiskon() {
+    const input = document.getElementById('input-kode').value.trim().toUpperCase();
+    const pesan = document.getElementById('pesan-diskon');
+    nilaiDiskon = 0;
+    kodeTerpakai = null;
+
+    if (!input) {
+        pesan.textContent = "⚠️ Masukkan kode diskon terlebih dahulu!";
+        pesan.className = "pesan-diskon gagal";
+        perbaruiTampilanKeranjang();
+        return;
+    }
+
+    if (DAFTAR_KODE_DISKON.hasOwnProperty(input)) {
+        nilaiDiskon = DAFTAR_KODE_DISKON[input];
+        kodeTerpakai = input;
+        pesan.textContent = `✅ Berhasil! Diskon Rp${nilaiDiskon.toLocaleString('id-ID')}`;
+        pesan.className = "pesan-diskon berhasil";
+    } else {
+        pesan.textContent = "❌ Kode tidak valid atau sudah kadaluarsa!";
+        pesan.className = "pesan-diskon gagal";
+    }
+    perbaruiTampilanKeranjang();
+}
+
+// === KIRIM KE WHATSAPP + KURANGI STOK REAL-TIME ===
+async function kirimKeWA() {
+    const nama = document.getElementById('nama').value.trim();
+    const wa = document.getElementById('wa').value.trim();
+    const alamat = document.getElementById('alamat').value.trim();
+    const gmail = document.getElementById('gmail').value.trim();
+    const noPesanan = document.getElementById('no-pesanan').textContent;
+    const tglPesanan = document.getElementById('tgl').textContent;
+
+    if (keranjang.length === 0) { alert("🛒 Keranjang masih kosong!"); return; }
+    if (!nama || !wa || !alamat) { alert("⚠️ Isi Nama, No. WA & Alamat Lengkap!"); return; }
+
+    // ✅ Cek & Kurangi Stok Dulu dari Database
+    const berhasil = await kurangiStok();
+    if (!berhasil) {
+        await ambilStokSemuaProduk(); // Refresh tampilan stok terbaru
+        return;
+    }
+
+    // Lanjut kirim pesan ke WhatsApp
+    let teks = `🛒 *PESANAN BARU TNXUS CLUB*%0A`;
+    teks += `━━━━━━━━━━━━━━━━━━━━%0A`;
+    teks += `📌 No. Pesanan: ${noPesanan}%0A`;
+    teks += `📅 Tanggal: ${tglPesanan}%0A`;
+    teks += `━━━━━━━━━━━━━━━━━━━━%0A`;
+    teks += `👤 Nama: ${nama}%0A`;
+    teks += `📞 WA: ${wa}%0A`;
+    teks += `📍 Alamat: ${alamat.replace(/\n/g, "%0A")}%0A`;
+    if (gmail) teks += `✉️ Email: ${gmail}%0A`;
+    teks += `━━━━━━━━━━━━━━━━━━━━%0A`;
+    teks += `📦 DAFTAR PESANAN:%0A`;
+
+    let subtotal = 0;
+    keranjang.forEach(item => {
+        const sub = item.harga * item.jumlah;
+        subtotal += sub;
+        teks += `• ${item.nama}%0A  ${item.ukuran} x${item.jumlah}%0A  Rp${sub.toLocaleString('id-ID')}%0A`;
+    });
+
+    teks += `━━━━━━━━━━━━━━━━━━━━%0A`;
+    teks += `💳 Subtotal: Rp${subtotal.toLocaleString('id-ID')}%0A`;
+    if (kodeTerpakai) teks += `🎁 Diskon [${kodeTerpakai}]: -Rp${nilaiDiskon.toLocaleString('id-ID')}%0A`;
+    const total = Math.max(0, subtotal - nilaiDiskon);
+    teks += `💰 TOTAL BAYAR: *Rp${total.toLocaleString('id-ID')}*%0A`;
+    teks += `━━━━━━━━━━━━━━━━━━━━%0A`;
+    teks += `🙏 Terima Kasih Telah Membeli!%0A`;
+    teks += `Silakan lakukan pembayaran sesuai nominal di atas.`;
+
+    // Buka WhatsApp
+    window.open(`https://wa.me/6281234567890?text=${encodeURIComponent(teks)}`, '_blank');
+
+    // Reset keranjang & refresh stok
+    keranjang = [];
+    perbaruiTampilanKeranjang();
+    await ambilStokSemuaProduk();
+}
+
+// === JALANKAN SAAT HALAMAN SIAP ===
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('no-pesanan').textContent = 'TNX' + Date.now();
+    document.getElementById('tgl').textContent = new Date().toLocaleString('id-ID');
+
+    // Ambil stok terbaru saat buka halaman
+    ambilStokSemuaProduk();
+    // Refresh stok otomatis tiap 10 detik
+    setInterval(ambilStokSemuaProduk, 10000);
+
+    // Jalankan timer
+    aturTimer();
+    setInterval(aturTimer, 1000);
+
+    // Inisialisasi semua slider — geser jari + mouse
+    const sliderEl = document.querySelector('.box-slider');
+    if (sliderEl) new SliderUsap(sliderEl);
+    document.querySelectorAll('.kartu-media').forEach(el => new SliderUsap(el));
+
+    // Kunci pre-order jika sudah habis
+    if (poSelesai) kunciSemuaPreOrder();
+});
+</script>
+
+</body>
+</html>
