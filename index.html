@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TNXUS CLUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { rank1:'#FFD700', rank2:'#C0C0C0', rank3:'#CD7F32', gelap:'#0F172A', kartu:'#1E293B' } } }
+    </script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+        body{background:#000;color:#fff;padding-top:48px;min-height:100vh}
+        .top-notice{position:fixed;top:0;left:0;width:100%;padding:12px;text-align:center;font-weight:bold;font-size:15px;z-index:999;background:linear-gradient(45deg,red,blue,green,yellow,purple);background-size:400% 400%;animation:gradientShift 8s ease infinite}
+        @keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+        .header-buttons{position:fixed;top:48px;right:15px;z-index:998;display:flex;gap:10px}
+        .btn-header{background:#222;border:1px solid #444;color:white;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:bold;transition:.3s}
+        .btn-header:hover{background:#ff0055;border-color:#ff0055}
+        .side-menu{position:fixed;top:48px;right:-320px;width:300px;height:calc(100vh - 48px);background:#111;z-index:997;padding:30px 20px;transition:right .4s ease}
+        .side-menu.active{right:0}
+        .side-menu a{display:block;color:white;text-decoration:none;padding:14px 0;border-bottom:1px solid #222;font-size:18px}
+        .side-menu a:hover{color:#ff0055;padding-left:8px}
+        .side-menu a.afiliasi-link{color:#ffcc00}
+        main{padding:20px;max-width:1200px;margin:90px auto 0;min-height:calc(100vh - 140px)}
+        .page{display:none}
+        .page.active{display:block}
+        .box-logo{width:100%;max-width:280px;aspect-ratio:1/1;margin:20px auto;border-radius:12px;overflow:hidden;background:#111}
+        .box-slider{width:100%;max-width:450px;aspect-ratio:1/1;margin:20px auto;border-radius:12px;overflow:hidden;background:#111;position:relative;touch-action:pan-y;cursor:grab;user-select:none}
+        .box-slider:active{cursor:grabbing}
+        .slides{display:flex;height:100%}
+        .slide{width:100%;flex-shrink:0}
+        .slide-img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+        .slider-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:5}
+        .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.4);border:none;cursor:pointer;padding:0}
+        .dot.active{background:#ff0055;width:18px;border-radius:4px}
+        video{width:100%;height:100%;object-fit:cover}
+        h1{text-align:center;color:#ff0055;margin:15px 0;font-size:28px}
+        .desc{text-align:center;color:#aaa;margin-bottom:30px}
+        .timer-wrapper{background:linear-gradient(145deg,#1a1a1a,#2a2a2a);border:2px solid #ff0055;border-radius:15px;padding:20px 30px;margin:20px auto;max-width:400px;text-align:center;box-shadow:0 0 15px rgba(255,0,85,.3)}
+        .timer-wrapper.habis{border-color:#666;background:#1a1a1a;box-shadow:none}
+        .timer-label-header{color:#ff6699;font-size:14px;margin-bottom:15px;letter-spacing:2px;text-transform:uppercase}
+        .preorder-timer{font-size:28px;color:#fff;font-weight:bold;text-shadow:0 0 8px #ff0055;font-family:monospace;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+        .timer-bagian{background:#111;padding:8px 12px;border-radius:8px;min-width:55px}
+        .timer-label{font-size:11px;color:#aaa;margin-top:4px}
+        .status-timer{margin-top:12px;font-size:14px;font-weight:bold;color:#ff0055}
+        .status-timer.habis{color:#666}
+        .timer-label,.stok-label{position:absolute;top:10px;z-index:3;font-size:12px;padding:4px 8px;border-radius:4px;font-weight:bold}
+        .timer-label{left:10px;background:rgba(255,0,0,.85);color:white}
+        .stok-label{right:10px;background:rgba(0,200,80,.9);color:white}
+        .stok-habis{background:rgba(100,100,100,.9)}
+        .habis-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:4;display:flex;align-items:center;justify-content:center;color:#ff4444;font-size:22px;font-weight:bold}
+        .produk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:25px;margin:40px 0}
+        .kartu-produk{background:#111;border-radius:12px;overflow:hidden;border:1px solid #222;transition:.3s}
+        .kartu-produk:hover{border-color:#ff0055;transform:translateY(-5px)}
+        .kartu-produk.habis{opacity:.7;border-color:#333}
+        .kartu-produk.kunci{opacity:.6;border-color:#333}
+        .kartu-media{position:relative;aspect-ratio:1/1;overflow:hidden;background:#000;touch-action:pan-y;cursor:grab;user-select:none}
+        .kartu-media:active{cursor:grabbing}
+        .kartu-slides{display:flex;height:100%}
+        .kartu-slide{width:100%;flex-shrink:0}
+        .kartu-slide-img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+        .kartu-dots{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:3}
+        .kartu-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4);border:none;cursor:pointer;padding:0}
+        .kartu-dot.active{background:#ff0055;width:14px;border-radius:3px}
+        .kartu-info{padding:15px}
+        .kartu-info h3{margin-bottom:8px;color:#fff}
+        .info-stok{font-size:14px;margin:8px 0;color:#4ec96e}
+        .info-stok.habis{color:#ff4444}
+        .info-stok.kunci{color:#ff8800}
+        .ukuran{margin:10px 0}
+        .ukuran select{width:100%;padding:8px;background:#222;color:white;border:1px solid #333;border-radius:6px}
+        .ukuran select:disabled{opacity:.5;cursor:not-allowed}
+        .harga{font-size:20px;font-weight:bold;color:#ff0055;margin:12px 0}
+        .jumlah-group{display:flex;align-items:center;gap:10px;margin:15px 0}
+        .jumlah-btn{width:36px;height:36px;background:#222;border:1px solid #444;color:white;font-size:18px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+        .jumlah-btn:disabled{opacity:.4;cursor:not-allowed}
+        .jumlah-btn:not(:disabled):hover{background:#ff0055;border-color:#ff0055}
+        .jumlah-input{width:50px;height:36px;text-align:center;background:#1a1a1a;border:1px solid #333;color:white;border-radius:6px;font-size:16px}
+        .jumlah-input:disabled{opacity:.4;cursor:not-allowed}
+        .btn-cart{width:100%;background:#ff0055;border:none;color:white;padding:12px;border-radius:8px;font-weight:bold;cursor:pointer;transition:.2s}
+        .btn-cart:disabled{background:#444;cursor:not-allowed;color:#999}
+        .btn-cart:not(:disabled):hover{background:#ff3377}
+        #keranjang-list{margin:20px 0}
+        .item-keranjang{background:#111;padding:15px;border-radius:10px;margin-bottom:15px;border:1px solid #222;display:flex;gap:15px;align-items:flex-start}
+        .foto-keranjang{width:80px;height:80px;border-radius:8px;object-fit:cover;background:#000}
+        .info-item{flex:1}
+        .info-item strong{color:#fff;font-size:16px}
+        .info-item p{color:#aaa;font-size:14px;margin:4px 0}
+        .hapus-btn{background:none;border:none;color:#ff4444;font-size:14px;cursor:pointer;margin-top:8px}
+        .hapus-btn:hover{color:#f00;text-decoration:underline}
+        .kotak-diskon{background:#111;border:1px solid #222;border-radius:10px;padding:15px;margin:20px 0}
+        .kotak-diskon input{width:100%;padding:12px;background:#0a0a0a;border:1px solid #333;border-radius:6px;color:white;font-size:15px;margin-bottom:10px;text-transform:uppercase}
+        .btn-diskon{background:#ff9500;border:none;padding:10px 18px;border-radius:6px;color:black;font-weight:bold;cursor:pointer}
+        .btn-diskon:hover{background:#ffb340}
+        .pesan-diskon{font-size:14px;margin-top:8px}
+        .berhasil{color:#4ec96e}
+        .gagal{color:#ff4444}
+        .rincian-harga{background:#0f0f0f;padding:15px;border-radius:8px;margin:15px 0;border:1px solid #222}
+        .baris-harga{display:flex;justify-content:space-between;padding:6px 0;color:#ccc;font-size:15px}
+        .baris-harga.total{font-size:19px;font-weight:bold;color:#ff0055;border-top:1px solid #222;padding-top:10px}
+        .form-group{margin:12px 0}
+        .form-group input,.form-group textarea{width:100%;padding:12px;background:#111;border:1px solid #333;border-radius:6px;color:white;font-size:15px}
+        .btn-checkout{background:#25d366;border:none;width:100%;padding:14px;border-radius:8px;color:white;font-size:16px;font-weight:bold;cursor:pointer}
+        .btn-checkout:disabled{background:#222;cursor:not-allowed}
+        #afiliasi{background:linear-gradient(135deg,#0F172A 0%,#1E1B4B 100%);margin:-20px -20px -60px -20px;padding:20px;min-height:calc(100vh - 90px)}
+        .bingkai-1{box-shadow:0 0 22px rgba(255,215,0,.5);border-color:#FFD700!important}
+        .bingkai-2{box-shadow:0 0 18px rgba(192,192,192,.5);border-color:#C0C0C0!important}
+        .bingkai-3{box-shadow:0 0 18px rgba(205,127,50,.5);border-color:#CD7F32!important}
+        footer{background:#0a0a0a;padding:30px;margin-top:60px;border-top:1px solid #222}
+        .footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:25px}
+        .footer-links a{color:#aaa;text-decoration:none}
+        .footer-links a:hover{color:#ff0055}
+    </style>
+</head>
+<body>
+
+<div class="top-notice">PREMIUM HIGH QUALITY 100% ORIGINAL</div>
+<div class="header-buttons">
+    <button class="btn-header" onclick="tampilkanMenu()">MENU</button>
+    <button class="btn-header" onclick="tampilkanHalaman('keranjang')">KERANJANG (<span id="jumlah-keranjang">0</span>)</button>
+</div>
+<div id="sideMenu" class="side-menu">
+    <a href="#" onclick="tampilkanHalaman('beranda');return false;">BERANDA</a>
+    <a href="#" onclick="tampilkanHalaman('produk');return false;">PRODUK & BRAND</a>
+    <a href="#" onclick="tampilkanHalaman('aksesoris');return false;">AKSESORIS</a>
+    <a href="#" onclick="tampilkanHalaman('afiliasi');return false;" class="afiliasi-link">⭐ PERINGKAT AFILIASI</a>
+</div>
+
+<main>
+    <!-- BERANDA -->
+    <section id="beranda" class="page active">
+        <div class="box-logo"><video autoplay loop muted playsinline><source src="https://raw.githubusercontent.com/tnxusclub/ina/main/video-logo.mp4" type="video/mp4"></video></div>
+        <h1>TNXUS CLUB</h1><p class="desc">Kaos Premium • Bahan Berkualitas • Desain Eksklusif</p>
+        <div class="box-slider">
+            <div class="slides">
+                <div class="slide"><img class="slide-img" src="https://raw.githubusercontent.com/tnxusclub/ina/main/foto1.jpeg" alt="Foto 1" loading="lazy"></div>
+                <div class="slide"><img class="slide-img" src="https://raw.githubusercontent.com/tnxusclub/ina/main/foto2.jpeg" alt="Foto 2" loading="lazy"></div>
+                <div class="slide"><img class="slide-img" src="https://raw.githubusercontent.com/tnxusclub/ina/main/foto3.jpeg" alt="Foto 3" loading="lazy"></div>
+            </div>
+            <div class="slider-dots"></div>
+        </div>
+        <h2 style="text-align:center;margin:30px 0;color:#fff;">⏳ PRODUK PRE ORDER</h2>
+        <div class="timer-wrapper" id="wadah-timer">
+            <div class="timer-label-header">WAKTU TERSISA</div>
+            <div class="preorder-timer">
+                <div class="timer-bagian"><span id="d">00</span><div class="timer-label">Hari</div></div>
+                <div class="timer-bagian"><span id="h">00</span><div class="timer-label">Jam</div></div>
+                <div class="timer-bagian"><span id="m">00</span><div class="timer-label">Menit</div></div>
+                <div class="timer-bagian"><span id="s">00</span><div class="timer-label">Detik</div></div>
+            </div>
+            <div class="status-timer" id="status-timer">BERJALAN</div>
+        </div>
+        <div class="produk-grid">
+            <div class="kartu-produk" data-stok="15" data-tipe="preorder">
+                <div class="kartu-media">
+                    <span class="timer-label">PRE ORDER</span>
+                    <span class="stok-label">Stok: <span class="stok-val">15</span></span>
+                    <div class="kartu-slides">
+                        <div class="kartu-slide"><img class="kartu-slide-img" src="https://raw.githubusercontent.com/tnxusclub/ina/main/po1.jpeg" alt="Produk" loading="lazy"></div>
+                        <div class="kartu-slide"><img class="kartu-slide-img" src="https://raw.githubusercontent.com/tnxusclub/ina/main/foto2.jpeg" alt="Produk" loading="lazy"></div>
+                    </div>
+                    <div class="kartu-dots"></div>
+                </div>
+                <div class="kartu-info">
+                    <h3>Kaos TNXUS Edisi Spesial</h3>
+                    <p class="desc">Katun 24s • Sablon DTF</p>
+                    <p class="info-stok">✅ Tersedia: <span class="stok-val">15</span> pcs</p>
+                    <div class="ukuran"><select onchange="gantiHarga(this)"><option value="95000">S - Rp95.000</option><option value="100000">M - Rp100.000</option><option value="105000">L - Rp105.000</option><option value="110000">XL - Rp110.000</option></select></div>
+                    <div class="harga">Rp<span>95.000</span></div>
+                    <div class="jumlah-group"><button class="jumlah-btn" onclick="ubahJumlah(this,-1)">−</button><input type="number" class="jumlah-input" value="1" min="1" readonly><button class="jumlah-btn" onclick="ubahJumlah(this,1)">+</button></div>
+                    <button class="btn-cart" onclick="tambahKeKeranjang('Kaos TNXUS Edisi Spesial',this,'https://raw.githubusercontent.com/tnxusclub/ina/main/po1.jpeg')">+ Keranjang</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUK -->
+    <section id="produk" class="page">
+        <h1>PRODUK & BRAND</h1>
+        <h2 style="margin:40px 0 20px;color:#fff;">PRE ORDER</h2>
+        <div class="produk-grid">
+            <div class="kartu-produk" data-stok="8" data-tipe="preorder">
+                <div class="kartu-media">
+                    <span class="timer-label">PRE ORDER</span>
+                    <span class="stok-label">Stok: <span class="stok-val">8</span></span>
+                    <div class="kartu-slides"><div class="kartu-slide"><img class="kartu-slide-img" src="https://raw.githubusercontent.com/tnxusclub/ina/main/po1.jpeg" alt="PO" loading="lazy"></div></div>
+                    <div class="kartu-dots"></div>
+                </div>
+                <div class="kartu-info">
+                    <h3>Kaos TNXUS PO 01</h3><p class="desc">Bahan Tebal Nyaman</p>
+                    <p class="info-stok">✅ Tersedia: <span class="stok-val">8</span> pcs</p>
+                    <div class="ukuran"><select onchange="gantiHarga(this)"><option value="90000">S - Rp90.000</option><option value="95000">M - Rp95.000</option><option value="100000">L - Rp100.000</option></select></div>
+                    <div class="harga">Rp<span>90.000</span></div>
+                    <div class="jumlah-group"><button class="jumlah-btn" onclick="ubahJumlah(this,-1)">−</button><input type="number" class="jumlah-input" value="1" min="1" readonly><button class="jumlah-btn" onclick="ubahJumlah(this,1)">+</button></div>
+                    <button class="btn-cart" onclick="tambahKeKeranjang('Kaos TNXUS PO 01',this,'https://raw.githubusercontent.com/tnxusclub/ina/main/po1.jpeg')">+ Keranjang</button>
+                </div>
+            </div>
+        </div>
+        <h2 style="margin:60px 0 20px;color:#fff;">READY STOCK</h2>
+        <div class="produk-grid">
+            <div class="kartu-produk" data-stok="25" data-tipe="biasa">
+                <div class="kartu-media">
+                    <span class="stok-label">Stok: <span class="stok-val">25</span></span>
+                    <div class="kartu-slides">
+                        <div class="kartu-slide"><img class="kartu-slide-img" src="https://raw.githubusercontent.com/tnxusclub/ina/main/ready1.jpeg" alt="Ready" loading="lazy"></div>
+                        <div class="kartu-slide"><img class="kartu-slide-img" src="https://raw.githubusercontent.com/tnxusclub/ina/main/foto3.jpeg" alt="Ready" loading="lazy"></div>
+                    </div>
+                    <div class="kartu-dots"></div>
+                </div>
+                <div class="kartu-info">
+                    <h3>Kaos TNXUS Basic</h3><p class="desc">Tersedia Langsung</p>
+                    <p class="info-stok">✅ Tersedia: <span class="stok-val">25</span> pcs</p>
+                    <div class="ukuran"><select onchange="gantiHarga(this)"><option value="85000">M - Rp85.000</option><option value="90000">L - Rp90.000</option></select></div>
+                    <div class="harga">Rp<span>85.000</span></div>
+                    <div class="jumlah-group"><button class="jumlah-btn" onclick="ubahJumlah(this,-1)">−</button><input type="number" class="jumlah-input" value="1" min="1" readonly><button class="jumlah-btn" onclick="ubahJumlah(this,1)">+</button></div>
+                    <button class="btn-cart" onclick="tambahKeKeranjang('Kaos TNXUS Basic',this,'https://raw.githubusercontent.com/tnxusclub/ina/main/ready1.jpeg')">+ Keranjang</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AKSESORIS -->
+    <section id="aksesoris" class="page">
+        <h1>AKSESORIS</h1>
+        <div class="produk-grid">
+            <div class="kartu-produk" data-stok="0" data-tipe="biasa">
+                <div class="kartu-media">
+                    <span class="stok-label stok-habis">Stok: <span class="stok-val">0</span></span>
+                    <div class="kartu-slides"><div class="kartu-slide"><img class="kartu-slide-img" src="https://raw.githubusercontent.com/tnxusclub/ina/main/topi.jpeg" alt="Topi" loading="lazy"></div></div>
+                    <div class="habis-overlay">HABIS</div><div class="kartu-dots"></div>
+                </div>
+                <div class="kartu-info">
+                    <h3>Topi TNXUS</h3><p class="desc">Bahan Kuat & Stylish</p>
+                    <p class="info-stok habis">❌ Stok Habis</p>
+                    <div class="harga">Rp<span>35.000</span></div>
+                    <div class="jumlah-group"><button class="jumlah-btn" disabled>−</button><input type="number" class="jumlah-input" value="1" disabled readonly><button class="jumlah-btn" disabled>+</button></div>
+                    <button class="btn-cart" disabled>HABIS</button>
+                </div>
+            </div>
+            <div class="kartu-produk" data-stok="12" data-tipe="biasa">
+                <div class="kartu-media">
+                    <span class="stok-label">Stok: <span class="stok-val">12</span></span>
+                    <div class="kartu-slides">
+                        <div class="kartu-slide"><img class="kartu-slide-img" src="https://raw.githubusercontent.com/tnxusclub/ina/main/tas.jpeg" alt="Tas" loading="lazy"></div>
+                        <div class="kartu-slide"><img class="kartu-slide-img" src="https://raw.githubusercontent.com/tnxusclub/ina/main/foto1.jpeg" alt="Tas" loading="lazy"></div>
+                    </div>
+                    <div class="kartu-dots"></div>
+                </div>
+                <div class="kartu-info">
+                    <h3>Tas TNXUS</h3><p class="desc">Tahan Air</p>
+                    <p class="info-stok">✅ Tersedia: <span class="stok-val">12</span> pcs</p>
+                    <div class="harga">Rp<span>50.000</span></div>
+                    <div class="jumlah-group"><button class="jumlah-btn" onclick="ubahJumlah(this,-1)">−</button><input type="number" class="jumlah-input" value="1" min="1" readonly><button class="jumlah-btn" onclick="ubahJumlah(this,1)">+</button></div>
+                    <button class="btn-cart" onclick="tambahKeKeranjang('Tas TNXUS',this,'https://raw.githubusercontent.com/tnxusclub/ina/main/tas.jpeg')">+ Keranjang</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AFILIASI -->
+    <section id="afiliasi" class="page">
+        <header class="pt-12 pb-8 text-center"><h1 class="font-bold text-white mb-2">🏆 Papan Peringkat Afiliasi</h1><p class="text-slate-300">Hanya 20 Terbaik • Nama Disensor</p></header>
+        <main class="max-w-3xl mx-auto px-4 pb-16"><div id="daftar-peringkat" class="space-y-3"></div></main>
+        <footer class="text-center text-slate-500 text-sm py-8">Sistem Afiliasi Toko Kaos • Semarang</footer>
+        <script>
+            const daftarPengguna = [
+                {no:1,nama:"Budi Santoso",poin:18500,foto:"https://i.pravatar.cc/150?img=11"},
+                {no:2,nama:"Siti Aminah",poin:17200,foto:"https://i.pravatar.cc/150?img=5"},
+                {no:3,nama:"Andi Wijaya",poin:16800,foto:"https://i.pravatar.cc/150?img=3"},
+                {no:4,nama:"Dewi Lestari",poin:14500,foto:"https://i.pravatar.cc/150?img=9"},
+                {no:5,nama:"Eko Prasetyo",poin:13900,foto:"https://i.pravatar.cc/150?img=12"},
+                {no:6,nama:"Fani Oktavia",poin:12700,foto:"https://i.pravatar.cc/150?img=15"},
+                {no:7,nama:"Galih Nugroho",poin:11500,foto:"https://i.pravatar.cc/150?img=18"},
+                {no:8,nama:"Hani Rahmawati",poin:10200,foto:"https://i.pravatar.cc/150?img=22"},
+                {no:9,nama:"Iwan Setiawan",poin:9800,foto:"https://i.pravatar.cc/150?img=25"},
+                {no:10,nama:"Juli Handayani",poin:9100,foto:"https://i.pravatar.cc/150?img=28"},
+                {no:11,nama:"Kiki Amalia",poin:8700,foto:"https://i.pravatar.cc/150?img=31"},
+                {no:12,nama:"Lukman Hakim",poin:8200,foto:"https://i.pravatar.cc/150?img=33"},
+                {no:13,nama:"Maya Sari",poin:7900,foto:"https://i.pravatar.cc/150?img=35"},
+                {no:14,nama:"Nando Firmansyah",poin:7400,foto:"https://i.pravatar.cc/150?img=38"},
+                {no:15,nama:"Oki Rahmat",poin:6800,foto:"https://i.pravatar.cc/150?img=40"},
+                {no:16,nama:"Putri Wulandari",poin:6200,foto:"https://i.pravatar.cc/150?img=42"},
+                {no:17,nama:"Qori Aini",poin:5700,foto:"https://i.pravatar.cc/150?img=44"},
+                {no:18,nama:"Riko Saputra",poin:5100,foto:"https://i.pravatar.cc/150?img=46"},
+                {no:19,nama:"Sari Dewi",poin:4600,foto:"https://i.pravatar.cc/150?img=48"},
+                {no:20,nama:"Tio Pratama",poin:4200,foto:"https://i.pravatar.cc/150?img=50"}
+            ];
+            function sensorNama(nama){nama=nama.trim();if(nama.length<=2)return nama;return nama[0]+'*'.repeat(Math.max(8,nama.length-2))+nama[nama.length-1]}
+            daftarPengguna.sort((a,b)=>b.poin-a.poin);
+            const wadah=document.getElementById('daftar-peringkat');
+            daftarPengguna.slice(0,20).forEach((orang,idx)=>{
+                const no=idx+1;let kelas='bg-kartu border border-slate-700 rounded-xl p-4 flex items-center gap-4 kartu-peringkat',rankClass='',mahkota='';
+                if(no===1){kelas+=' bingkai-1';rankClass='bg-rank1';mahkota='👑'}
+                else if(no===2){kelas+=' bingkai-2';rankClass='bg-rank2';mahkota='👑'}
+                else if(no===3){kelas+=' bingkai-3';rankClass='bg-rank3';mahkota='👑'}
+                wadah.innerHTML+=`<div class="${kelas}"><div class="w-10 text-center font-bold text-lg ${no<=3?'text-white':'text-slate-400'}">${no}</div><div class="relative"><div class="${rankClass||'bg-slate-500'} p-1 rounded-full"><img src="${orang.foto}" class="w-12 h-12 rounded-full object-cover" loading="lazy"></div><span class="absolute -top-3 left-1/2 -translate-x-1/2 text-2xl">${mahkota}</span></div><div class="flex-grow"><h3 class="font-semibold text-white">${sensorNama(orang.nama)}</h3></div><div class="text-right"><div class="text-xl font-bold text-white">${orang.poin.toLocaleString()}</div><div class="text-xs text-slate-400">Poin</div></div></div>`;
+            });
+        </script>
+    </section>
+
+    <!-- KERANJANG -->
+    <section id="keranjang" class="page">
+        <h1>KERANJANG BELANJA</h1>
+        <p style="color:#aaa;">No. Pesanan: <strong id="no-pesanan"></strong> | <span id="tgl"></span></p>
+        <div id="keranjang-list"></div>
+        <div class="kotak-diskon">
+            <h3 style="margin-bottom:12px;color:#fff;">🎁 Kode Diskon</h3>
+            <input type="text" id="input-kode" placeholder="Masukkan kode unik...">
+            <button class="btn-diskon" onclick="cekKodeDiskon()">Gunakan</button>
+            <div id="pesan-diskon" class="pesan-diskon"></div>
+        </div>
+        <div class="rincian-harga">
+            <div class="baris-harga">Subtotal: <span id="subtotal">Rp0</span></div>
+            <div class="baris-harga" id="baris-potongan" style="display:none;">Diskon: <span id="potongan">-Rp0</span></div>
+            <div class="baris-harga total">TOTAL: <span id="total-bayar">Rp0</span></div>
+        </div>
+        <h3 style="margin:30px 0 15px;color:#fff;">DATA PENGIRIMAN</h3>
+        <div class="form-group"><input type="text" id="nama" placeholder="Nama Lengkap"></div>
+        <div class="form-group"><input type="text" id="wa" placeholder="Nomor WhatsApp"></div>
+        <div class="form-group"><textarea id="alamat" placeholder="Alamat Lengkap"></textarea></div>
+        <div class="form-group"><input type="email" id="gmail" placeholder="Email"></div>
+        <button class="btn-checkout" onclick="kirimKeWA()">✅ KIRIM KE WHATSAPP</button>
+    </section>
+</main>
+
+<footer>
+    <div class="footer-links">
+        <a href="https://instagram.com/tnxusclub" target="_blank">Instagram</a>
+        <a href="https://tiktok.com/@tnxusclub" target="_blank">TikTok</a>
+        <a href="#">Cara Order</a>
+        <a href="#">Customer Service</a>
+    </div>
+</footer>
+
+<script>
+// ==================================================
+// 🔗 WAJIB: GANTI URL DARI GOOGLE APPS SCRIPT DISINI
+// ==================================================
+const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/exec";
+
+// Kode Diskon
+const DAFTAR_KODE_DISKON = Object.freeze({ "TNXUS10":10000, "HEMAT5":5000, "TNXUSCLUB":20000 });
+let nilaiDiskon=0, kodeTerpakai=null, keranjang=[], poSelesai=false;
+
+// Timer — Ubah tanggal disini
+const TANGGAL_AKHIR_PO = new Date("2026-09-10 23:59:59").getTime();
+
+// === SLIDER — GESER JARI + MOUSE ===
+class SliderUsap {
+    constructor(e){this.wadah=e;this.slides=this.wadah.querySelector('.slides,.kartu-slides');this.wadahTitik=this.wadah.querySelector('.slider-dots,.kartu-dots');this.indeks=0;this.jumlah=this.slides?this.slides.querySelectorAll('.slide,.kartu-slide').length:0;this.sedangGeser=false;this.awalX=0;this.bergerakX=0;this.lebarSlide=0;this.jumlah>0&&(this.lebarSlide=this.wadah.offsetWidth,this.buatTitik(),this.aturEventSentuh(),this.aturEventMouse(),this.perbarui(!1))}
+    buatTitik(){for(let i=0;i<this.jumlah;i++){const t=document.createElement('button');t.className=this.wadah.classList.contains('box-slider')?'dot':'kartu-dot',t.style.border='none',t.style.background='rgba(255,255,255,.3)',t.style.padding='0',t.style.cursor='pointer',t.addEventListener('click',()=>this.pindahKe(i)),this.wadahTitik.appendChild(t)}}
+    aturEventSentuh(){this.wadah.addEventListener('touchstart',e=>{this.awalX=e.touches[0].clientX,this.sedangGeser=!0,this.slides.style.transition='none',this.lebarSlide=this.wadah.offsetWidth},{passive:!0}),this.wadah.addEventListener('touchmove',e=>{if(!this.sedangGeser)return;this.bergerakX=e.touches[0].clientX-this.awalX;const t=-this.indeks*100+(this.bergerakX/this.lebarSlide)*100;this.slides.style.transform=`translateX(${t}%)`},{passive:!0}),this.wadah.addEventListener('touchend',()=>this.selesaiGeser(),{passive:!0})}
+    aturEventMouse(){this.wadah.addEventListener('mousedown',e=>{e.preventDefault(),this.awalX=e.clientX,this.sedangGeser=!0,this.slides.style.transition='none',this.lebarSlide=this.wadah.offsetWidth,this.wadah.style.cursor='grabbing'}),document.addEventListener('mousemove',e=>{if(!this.sedangGeser)return;this.bergerakX=e.clientX-this.awalX;const t=-this.indeks*100+(this.bergerakX/this.lebarSlide)*100;this.slides.style.transform=`translateX(${t}%)`}),document.addEventListener('mouseup',()=>{this.sedangGeser&&(this.wadah.style.cursor='grab',this.selesaiGeser())}),this.wadah.style.cursor='grab',this.wadah.style.userSelect='none'}
+    selesaiGeser(){this.sedangGeser=!1,this.slides.style.transition='transform .3s ease-out';const e=this.lebarSlide/4;this.bergerakX<-e?this.berikutnya():this.bergerakX>e?this.sebelumnya():this.perbarui(!0),this.bergerakX=0}
+    perbarui(e=!0){e&&(this.slides.style.transition='transform .3s ease-out'),this.slides.style.transform=`translateX(-${this.indeks*100}%)`;const t=this.wadahTitik.querySelectorAll('.dot,.kartu-dot');t.forEach((e,i)=>e.classList.toggle('active',i===this.indeks))}
+    pindahKe(e){this.indeks=e,this.perbarui(!0)}
+    berikutnya(){this.indeks=(this.indeks+1)%this.jumlah,this.perbarui(!0)}
+    sebelumnya(){this.indeks=(this.indeks-1+this.jumlah)%this.jumlah,this.perbarui(!0)}
+}
+
+// === 🔄 SISTEM STOK REAL-TIME ===
+async function ambilStokSemuaProduk(){try{const e=await fetch(URL_WEBAPP),t=await e.json();document.querySelectorAll('.kartu-produk').forEach(kartu=>{const nama=kartu.querySelector('h3').textContent.trim(),stokBaru=t[nama]??parseInt(kartu.dataset.stok);kartu.dataset.stok=stokBaru,kartu.querySelectorAll('.stok-val').forEach(e=>e.textContent=stokBaru);const infoStok=kartu.querySelector('.info-stok'),btnBeli=kartu.querySelector('.btn-cart'),inputJml=kartu.querySelector('.jumlah-input'),btnJml=kartu.querySelectorAll('.jumlah-btn');if(stokBaru<=0){kartu.classList.add('habis'),infoStok&&(infoStok.innerHTML='❌ STOK HABIS',infoStok.classList.add('habis')),btnBeli&&(btnBeli.disabled=!0,btnBeli.textContent='STOK HABIS'),inputJml&&(inputJml.disabled=!0),btnJml.forEach(e=>e.disabled=!0)}else{kartu.classList.remove('habis'),infoStok&&(infoStok.innerHTML=`✅ Tersedia: ${stokBaru} pcs`,infoStok.classList.remove('habis','kunci')),!poSelesai&&!kartu.classList.contains('kunci')&&(btnBeli&&(btnBeli.disabled=!1,btnBeli.textContent='+ Keranjang'),inputJml&&(inputJml.disabled=!1),btnJml.forEach(e=>e.disabled=!1))}})}catch(e){console.error('Gagal ambil stok:',e)}}
+
+async function kurangiStok(){for(const item of keranjang){try{const res=await fetch(`${URL_WEBAPP}?nama_produk=${encodeURIComponent(item.nama)}&kurangi=${item.jumlah}`,{method:'POST'}),hasil=await res.json();if(!hasil.sukses)return alert(`❌ ${item.nama}: ${hasil.pesan}`),!1}catch(e){return alert(`❌ Gagal update stok: ${e}`),!1}}return!0}
+
+// Timer
+function aturTimer(){const t=new Date().getTime(),e=TANGGAL_AKHIR_PO-t;if(e<=0){poSelesai=!0,document.getElementById('d').textContent='00',document.getElementById('h').textContent='00',document.getElementById('m').textContent='00',document.getElementById('s').textContent='00';const n=document.getElementById('wadah-timer'),o=document.getElementById('status-timer');n&&n.classList.add('habis'),o&&(o.textContent='WAKTU HABIS',o.classList.add('habis')),kunciSemuaPreOrder();return}poSelesai=!1;const n=Math.floor(e/(1e3*60*60*24)),o=Math.floor((e%(1e3*60*60*24))/(1e3*60*60)),s=Math.floor((e%(1e3*60*60))/(1e3*60)),i=Math.floor((e%(1e3*60))/1e3),f=e=>String(e).padStart(2,'0');document.getElementById('d')&&(document.getElementById('d').textContent=f(n)),document.getElementById('h')&&(document.getElementById('h').textContent=f(o)),document.getElementById('m')&&(document.getElementById('m').textContent=f(s)),document.getElementById('s')&&(document.getElementById('s').textContent=f(i))}
+function kunciSemuaPreOrder(){document.querySelectorAll('.kartu-produk[data-tipe="preorder"]').forEach(e=>{e.classList.add('kunci');const t=e.querySelector('.btn-cart'),n=e.querySelector('.jumlah-input'),o=e.querySelectorAll('.jumlah-btn'),s=e.querySelector('select');t&&(t.disabled=!0),n&&(n.disabled=!0),o.forEach(e=>e.disabled=!0),s&&(s.disabled=!0)})}
+
+// Fungsi Umum
+function tampilkanMenu(){document.getElementById('sideMenu').classList.toggle('active')}
+function tampilkanHalaman(e){document.querySelectorAll('.page').forEach(t=>t.classList.remove('active')),document.getElementById(e).classList.add('active'),document.getElementById('sideMenu').classList.remove('active'),window.scrollTo(0,0)}
+function gantiHarga(e){const t=e.closest('.kartu-info');t.querySelector('.harga span').textContent=parseInt(e.value).toLocaleString('id-ID')}
+function ubahJumlah(e,t){const n=e.closest('.kartu-produk');if(n.classList.contains('kunci'))return;const o=n.querySelector('.jumlah-input'),s=parseInt(n.dataset.stok);let i=parseInt(o.value)+t;i=Math.max(1,Math.min(i,s)),o.value=i}
+function tambahKeKeranjang(nama,tombol,foto){const kartu=tombol.closest('.kartu-produk'),stok=parseInt(kartu.dataset.stok);if(kartu.classList.contains('kunci')||poSelesai)return void alert('❌ Sudah tidak bisa dipesan!');if(stok<=0)return void alert('❌ Stok habis!');const ukuranEl=kartu.querySelector('select'),ukuranTeks=ukuranEl.options[ukuranEl.selectedIndex].text,harga=parseInt(ukuranEl.value),jumlah=parseInt(kartu.querySelector('.jumlah-input').value);const ada=keranjang.find(i=>i.nama===nama&&i.ukuran===ukuranTeks);if(ada){if(ada.jumlah+jumlah>stok)return void alert('⚠️ Jumlah melebihi stok!');ada.jumlah+=jumlah}else keranjang.push({nama,ukuran:ukuranTeks,harga,jumlah,foto});perbaruiTampilanKeranjang(),alert(`✅ Berhasil ditambahkan:\n${nama}\n${ukuranTeks} x${jumlah}`)}
+function perbaruiTampilanKeranjang(){const e=document.getElementById('keranjang-list'),t=document.getElementById('jumlah-keranjang');let n=0;const o=keranjang.reduce((e,t)=>e+t.jumlah,0);t.textContent=o,e.innerHTML='';if(0===keranjang.length)e.innerHTML='<p style="color:#aaa;text-align:center;padding:30px;">🛒 Keranjang belanja kosong</p>';else{keranjang.forEach((brg,idx
